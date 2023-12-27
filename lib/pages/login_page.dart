@@ -1,9 +1,16 @@
+
 import 'package:chat_app/widgets/boton_azul.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:chat_app/services/auth_service.dart';
+
+import 'package:chat_app/helpers/mostar_alerta.dart';
 
 import 'package:chat_app/widgets/custom_input.dart';
 import 'package:chat_app/widgets/labels.dart';
 import 'package:chat_app/widgets/logo.dart';
+
 
 
 class LoginPage extends StatelessWidget {
@@ -55,6 +62,9 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+
+    final authService = Provider.of<AuthService>( context );
+
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric( horizontal: 50 ),
@@ -76,7 +86,20 @@ class __FormState extends State<_Form> {
           ),             
            
           BotonAzul(
-            onPressed: () {  }, 
+            onPressed: authService.autenticando ? null : () async {
+
+              FocusScope.of(context).unfocus();
+              
+              final loginOk = await authService.login(emailCtrl.text.trim(), passCtrl.text.trim());
+              
+              if ( loginOk ) {
+                // TODO: Conectar a nuestro socket server
+                Navigator.pushReplacementNamed(context, 'usuarios');
+              } else {
+                // Mostar alerta
+                mostrarAlerta(context, 'Login incorrecto', 'Revise sus credenciales nuevamente');
+              }
+              }, 
             text: 'Ingrese',)
                    
         ],
